@@ -61,26 +61,16 @@ This project explores Uber fare data through two complementary approaches:
 ## 📈 Key Results
 
 ### Fare Prediction
-
-![Model Performance](images/model_performance.png)
-
 - Successfully predicted fares with strong performance metrics
 - Distance emerged as the strongest predictor
 - Time-based features captured surge pricing patterns
 - Model interpretability through feature importance analysis
 
-![Feature Importance](images/feature_importance.png)
-
 ### Causal Inference
-
-![Causal Graph](images/causal_graph.png)
-
 - **Peak Hour Effect:** Quantified causal impact of riding during rush hours (7-9 AM, 5-7 PM)
 - **Passenger Count Effect:** Analyzed how group size affects fare amounts
 - Validated findings through multiple estimation methods and refutation tests
 - Identified confounders and controlled for selection bias
-
-![Treatment Effects](images/treatment_effects.png)
 
 ## 📂 Repository Structure
 
@@ -140,7 +130,3 @@ pip install -r requirements.txt
 **Maral Vahedi**
 - LinkedIn: [linkedin.com/in/maralvahedi](https://linkedin.com/in/maralvahedi)
 - Email: maral.vahedi@mail.mcgill.ca
-
----
-
-*This project was completed as part of coursework in the Master of Management in Analytics program at McGill University.*
