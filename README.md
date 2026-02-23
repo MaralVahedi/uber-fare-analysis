@@ -17,6 +17,13 @@ So I split the work into:
 - **Notebook 1:** build a strong predictive baseline
 - **Notebook 2:** estimate causal treatment effects after controlling confounders
 
+### Reader walkthrough
+If you are reading this for the first time, this is the intended path:
+1. Start with the **business question**: what drives fare changes and what is just correlation?
+2. Follow **Notebook 1** to see how the dataset is cleaned, validated, and transformed into a reliable predictive pipeline.
+3. Use **Notebook 2** to move from prediction to causality and test whether candidate factors (peak hour, passenger count) truly change fares.
+4. End with the comparison: predictive usefulness vs causal strength.
+
 ### Notebook map
 
 | Notebook | Core Question | Main Methods | Output |
@@ -42,6 +49,27 @@ flowchart LR
 ## Act I: Predictive Modeling (Notebook 1)
 
 I start with data cleaning and geospatial/temporal feature engineering, then compare multiple regressors before selecting a final model.
+
+### Step 1: Validate location quality before modeling
+
+Before training any model, I check whether pickup coordinates are realistic for NYC and remove out-of-bound records.  
+This map is from the notebook workflow and helps explain why geospatial cleaning is necessary before prediction.
+
+![NYC Pickup Map Overlay](images/nyc_pickup_map_overlay.png)
+
+What this adds to the story:
+- It visually confirms that rides concentrate in expected NYC areas.
+- It helps justify coordinate-bound filters in preprocessing.
+- It shows that fare variation has a strong spatial pattern (not just random noise).
+
+### Step 2: Engineer features that match the business problem
+
+After cleaning, I engineer variables tied to fare logic:
+- trip distance (haversine)
+- time features (hour/day)
+- additional context features used in model training
+
+This prepares the data for supervised learning while preserving interpretability.
 
 ### Model comparison (RMSE)
 
@@ -97,6 +125,9 @@ After prediction, I move to causal questions using the cleaned dataset (`194,063
 - Both treatments have **positive** estimated causal effects.
 - **Peak hour** has a larger effect than passenger count.
 - **Distance** remains the dominant fare driver across both predictive and causal views.
+
+This is the key end-to-end message:  
+**the model predicts fares well, and the causal layer explains which operational levers likely move fares in reality.**
 
 ---
 
