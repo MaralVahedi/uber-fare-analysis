@@ -1,75 +1,97 @@
-# Uber Fare Analysis: From Prediction to Causality
+# Uber Fare Analysis: A Data Science Case Study (Prediction + Causal Inference)
 
-This project tells a two-part data science story on NYC Uber fares:
+This repository is built as a full data science narrative, not only a model report.
+It answers two linked questions on NYC Uber fares:
 
-1. **Can we predict fares accurately?**  
-2. **What actually causes fares to change?**
-
-I answer these with two connected notebooks: one predictive, one causal.
+1. How well can fare be predicted from observable trip attributes?
+2. Which factors have measurable causal impact on fare after controlling confounders?
 
 ---
 
-## Project Story
+## 1) Why This Problem Matters
 
-### Why this project
-Raw fare differences can be misleading. A ride during peak hour may look more expensive simply because it is longer or in a different area.  
-So I split the work into:
-- **Notebook 1:** build a strong predictive baseline
-- **Notebook 2:** estimate causal treatment effects after controlling confounders
+Fare estimation affects multiple stakeholders:
 
-### Reader walkthrough
-If you are reading this for the first time, this is the intended path:
-1. Start with the **business question**: what drives fare changes and what is just correlation?
-2. Follow **Notebook 1** to see how the dataset is cleaned, validated, and transformed into a reliable predictive pipeline.
-3. Use **Notebook 2** to move from prediction to causality and test whether candidate factors (peak hour, passenger count) truly change fares.
-4. End with the comparison: predictive usefulness vs causal strength.
+| Stakeholder | Pain Point | Data Science Value |
+|---|---|---|
+| Riders | Price uncertainty before booking | Better expected fare estimates |
+| Pricing/Product teams | Hard to distinguish correlation vs causation | More reliable policy decisions |
+| Operations | Need interpretable demand/pricing signals | Understand when/why fares move |
+
+If we only optimize prediction, we may build accurate models but still misread business levers.
+If we only run causal analysis, we may miss operational forecasting value.
+This project intentionally combines both.
+
+---
+
+## 2) Business Questions and Hypotheses
+
+| Question | Hypothesis |
+|---|---|
+| Q1: Does peak-hour timing increase fare? | Peak windows may raise fares through demand and congestion effects. |
+| Q2: Does higher passenger count (3+) increase fare? | Larger group rides may have slightly higher fares due to trip/vehicle mix. |
+
+---
+
+## 3) End-to-End Workflow
 
 ### Notebook map
 
-| Notebook | Core Question | Main Methods | Output |
-|---|---|---|---|
-| `01_fare_prediction/uber_fare_prediction.ipynb` | How well can fare be predicted? | EDA, feature engineering, regression models, tuning, residual diagnostics | Best predictive model + error profile |
-| `02_causal_inference/causal_inference_analysis.ipynb` | Which factors causally shift fares? | CausalML (S/T/X learners), DoWhy backdoor estimators, refutation checks | Causal effect estimates for two treatments |
+| Notebook | Role in the story | Primary output |
+|---|---|---|
+| `01_fare_prediction/uber_fare_prediction.ipynb` | Build predictive baseline and validate feature signal | Error metrics + diagnostics |
+| `02_causal_inference/causal_inference_analysis.ipynb` | Estimate treatment effects with multiple causal methods | Robust ATE estimates |
 
-### Mini Architecture / Workflow
+### Mini architecture / pipeline
 
 ```mermaid
 flowchart LR
-    A[Raw Data<br/>uber.csv.zip] --> B[Notebook 1<br/>Fare Prediction Pipeline]
+    A[Raw Data<br/>uber.csv.zip] --> B[Notebook 1<br/>Cleaning + Feature Engineering + Prediction]
     B --> C[Cleaned Dataset<br/>uber_cleaned.csv]
-    C --> D[Notebook 2<br/>Causal Inference Pipeline]
-    B --> E[Predictive Metrics<br/>RMSE, MAE, R^2]
-    D --> F[Causal Effects<br/>Peak Hour, Passenger Count]
-    E --> G[Portfolio Insights]
+    C --> D[Notebook 2<br/>CausalML + DoWhy]
+    B --> E[Predictive performance<br/>RMSE MAE R^2]
+    D --> F[Causal effects<br/>Peak hour + Passenger count]
+    E --> G[Decision narrative]
     F --> G
 ```
 
+### How to read this repo
+1. Start with Notebook 1 to understand data quality controls and predictive validity.
+2. Move to Notebook 2 to test causal claims under explicit assumptions.
+3. Use the final comparison to separate forecasting usefulness from true levers.
+
 ---
 
-## Act I: Predictive Modeling (Notebook 1)
+## 4) Data + Quality Controls
 
-I start with data cleaning and geospatial/temporal feature engineering, then compare multiple regressors before selecting a final model.
+Source: [NYC Taxi Fare Prediction (Kaggle)](https://www.kaggle.com/competitions/new-york-city-taxi-fare-prediction)
 
-### Step 1: Validate location quality before modeling
+Core cleaning logic (Notebook 1):
+- remove invalid fares (`fare_amount <= 0` or `> 100`)
+- enforce NYC coordinate bounds
+- keep realistic passenger counts (`1-6`)
+- remove missing critical fields
 
-Before training any model, I check whether pickup coordinates are realistic for NYC and remove out-of-bound records.  
-This map is from the notebook workflow and helps explain why geospatial cleaning is necessary before prediction.
+### Why this matters
+Model quality is very sensitive to geospatial outliers.  
+Before modeling, I validate that pickup locations align with NYC geography.
 
 ![NYC Pickup Map Overlay](images/nyc_pickup_map_overlay.png)
 
-What this adds to the story:
-- It visually confirms that rides concentrate in expected NYC areas.
-- It helps justify coordinate-bound filters in preprocessing.
-- It shows that fare variation has a strong spatial pattern (not just random noise).
+Interpretation:
+- pickup density clusters in expected NYC regions
+- cleaning rules remove implausible geo points
+- spatial pattern supports distance/location as strong fare signals
 
-### Step 2: Engineer features that match the business problem
+---
 
-After cleaning, I engineer variables tied to fare logic:
-- trip distance (haversine)
-- time features (hour/day)
-- additional context features used in model training
+## 5) Notebook 1: Predictive Modeling
 
-This prepares the data for supervised learning while preserving interpretability.
+### Modeling strategy
+- baseline + tree ensembles
+- tuned model selection via RMSE
+- holdout test evaluation
+- residual diagnostics for error behavior
 
 ### Model comparison (RMSE)
 
@@ -77,15 +99,13 @@ This prepares the data for supervised learning while preserving interpretability
 |---|---:|---|
 | Linear Regression | 3.45 | Baseline |
 | Random Forest | 2.85 | Default |
-| **Random Forest** | **2.78** | **Tuned (selected)** |
+| **Random Forest** | **2.78** | **Tuned and selected** |
 | Gradient Boosting | 2.92 | Default |
 | Gradient Boosting | 3.66 | Tuned |
 
-The tuned Random Forest was selected for final evaluation due to lowest error and stable behavior.
-
 ![Predictions vs Actual](images/predictions_vs_actual.png)
 
-### Final held-out test performance
+### Held-out performance
 
 | Metric | Value |
 |---|---:|
@@ -93,63 +113,73 @@ The tuned Random Forest was selected for final evaluation due to lowest error an
 | MAE | 2.014 |
 | R^2 | 0.828 |
 
-Residual diagnostics show low systematic bias and expected spread at higher fares.
+Residual checks show near-zero average bias with wider spread on higher-fare trips.
 
 ![Residual Analysis](images/residual_analysis.png)
 
 ---
 
-## Act II: Causal Inference (Notebook 2)
+## 6) Notebook 2: Causal Inference
 
-After prediction, I move to causal questions using the cleaned dataset (`194,063` rides).
+Prediction alone does not prove drivers of fare change.
+So Notebook 2 estimates treatment effects using complementary causal methods.
 
-### Treatments studied
+### Treatments
 
-| Treatment | Definition | Why it matters |
+| Treatment | Definition | Controlled confounders |
 |---|---|---|
-| Peak hour | 7-9 AM or 5-7 PM | Potential surge/traffic effect |
-| High passenger count | `passenger_count >= 3` | Possible vehicle/trip-type effect |
+| Peak hour | 7-9 AM or 5-7 PM | Distance, hour/day signals, pickup/dropoff location |
+| High passenger count | `passenger_count >= 3` | Distance, time, pickup/dropoff location |
 
 ![Peak Hour Treatment Distribution](images/peak_hour_treatment_distribution.png)
 
-### Causal results summary
+### Causal summary
 
-| Treatment | CausalML | DoWhy | Practical read |
+| Treatment | CausalML | DoWhy | Readout |
 |---|---|---|---|
-| Peak hour | ~0.15 to 0.16 | ~0.15 to 0.16 (core methods) | Stronger of the two effects |
-| High passenger count | LRS: 0.121, XGB: 0.132 | Avg: 0.118 (range: 0.090 to 0.154) | Small positive effect |
+| Peak hour | ~0.15 to 0.16 | ~0.15 to 0.16 (core methods) | Clear positive effect |
+| High passenger count | LRS: 0.121, XGB: 0.132 | Avg: 0.118 (range 0.090 to 0.154) | Small positive effect |
 
 ![CausalML Effect Distributions](images/causalml_effect_distributions.png)
 
-### Main causal takeaway
-- Both treatments have **positive** estimated causal effects.
-- **Peak hour** has a larger effect than passenger count.
-- **Distance** remains the dominant fare driver across both predictive and causal views.
-
-This is the key end-to-end message:  
-**the model predicts fares well, and the causal layer explains which operational levers likely move fares in reality.**
+### Interpretation
+- both treatments are positive after adjustment
+- peak-hour effect is stronger than passenger-count effect
+- distance remains dominant across predictive and causal views
 
 ---
 
-## Business Impact (Short)
+## 7) Business Impact
 
-- **Fare transparency for riders:** A model with MAE around `$2` gives practical fare expectations before booking.
-- **Pricing policy insight for operations:** Peak-hour effect (`~$0.15`) is stronger than passenger-count effect (`~$0.12`), suggesting time-based pricing signals are more influential than group size.
-- **Decision support for product teams:** Combining prediction + causality helps separate *what forecasts well* from *what actually drives change*, reducing policy decisions based on spurious correlations.
+| Area | Practical implication |
+|---|---|
+| Rider transparency | MAE around $2 provides a useful expected-fare range before booking |
+| Pricing strategy | Peak-hour timing appears to have stronger direct impact than passenger count |
+| Product decisions | Supports prioritizing time/location-aware pricing explanations and UX |
+| Analytics maturity | Demonstrates correlation-to-causation upgrade for decision quality |
 
----
-
-## Data
-
-Source: [NYC Taxi Fare Prediction (Kaggle)](https://www.kaggle.com/competitions/new-york-city-taxi-fare-prediction)
-
-Place these in project root:
-- `uber.csv.zip` (or extracted `uber.csv`) for Notebook 1
-- `uber_cleaned.csv` for Notebook 2 (created by Notebook 1 workflow)
+In short: this project provides both operational forecasting value and causal decision support.
 
 ---
 
-## Reproducibility
+## 8) Assumptions, Limits, and Next Steps
+
+### Key assumptions
+- no major unobserved confounders beyond included controls
+- treatment definitions (binary peak hour, binary passenger threshold) are reasonable simplifications
+
+### Current limitations
+- weather/events/traffic shocks are not directly modeled
+- sensitivity to method choice exists in propensity-based estimators
+
+### Next improvements
+- add weather and event covariates
+- estimate heterogeneous treatment effects by zone/time cluster
+- include uncertainty intervals in final decision dashboard format
+
+---
+
+## 9) Reproducibility
 
 ```bash
 git clone https://github.com/MaralVahedi/uber-fare-analysis.git
@@ -157,26 +187,31 @@ cd uber-fare-analysis
 python -m pip install -r requirements.txt
 ```
 
-Run notebooks in order:
+Place data files in project root:
+- `uber.csv.zip` (or extracted `uber.csv`) for Notebook 1
+- `uber_cleaned.csv` for Notebook 2
+
+Run in order:
 1. `01_fare_prediction/uber_fare_prediction.ipynb`
 2. `02_causal_inference/causal_inference_analysis.ipynb`
 
 ---
 
-## Skills Demonstrated
+## 10) Data Science Competencies Demonstrated
 
-| Area | Demonstrated Through |
+| Competency | Evidence in project |
 |---|---|
-| Data quality + EDA | Outlier rules, missingness handling, distribution analysis |
-| Feature engineering | Distance, temporal, and contextual features |
-| Predictive ML | Model selection, tuning, residual/error diagnostics |
-| Causal inference | Meta-learners + backdoor estimators + robustness checks |
-| Communication | Framing results as prediction vs causation |
+| Problem framing | explicit business + causal questions |
+| Data quality management | domain-based cleaning and validation |
+| Feature engineering | geospatial and temporal signal construction |
+| Predictive modeling | model selection, tuning, diagnostics |
+| Causal reasoning | multiple estimators + method comparison |
+| Communication | narrative from data to decision implications |
 
 ---
 
 ## Contact
 
-Maral Vahedi  
-- LinkedIn: [linkedin.com/in/maralvahedi](https://linkedin.com/in/maralvahedi)  
+Maral Vahedi
+- LinkedIn: [linkedin.com/in/maralvahedi](https://linkedin.com/in/maralvahedi)
 - Email: maral.vahedi@mail.mcgill.ca
