@@ -1,132 +1,100 @@
-# Uber Fare Analysis: Prediction & Causal Inference
+# Uber Fare Analysis: Prediction + Causal Inference
 
-A comprehensive machine learning project analyzing NYC Uber ride data, combining predictive modeling with causal inference techniques to understand fare pricing patterns and treatment effects.
+End-to-end data science project on NYC Uber fares with two workflows:
+1. fare prediction (supervised regression)
+2. causal inference (treatment-effect estimation)
 
-![Project Banner](images/banner.png)
+## Project Scope
 
-## 📊 Project Overview
+### 1) Fare prediction notebook
+`01_fare_prediction/uber_fare_prediction.ipynb`
+- data profiling and cleaning
+- geospatial/time feature engineering
+- model training and comparison (Linear, Random Forest, Gradient Boosting)
+- residual analysis and test-set evaluation
 
-This project explores Uber fare data through two complementary approaches:
+### 2) Causal inference notebook
+`02_causal_inference/causal_inference_analysis.ipynb`
+- treatment 1: peak-hour indicator
+- treatment 2: high passenger-count indicator (3+)
+- CausalML meta-learners + DoWhy causal estimation
+- robustness/refutation checks
 
-1. **Fare Prediction (Regression):** Building ML models to predict trip fares based on pickup/dropoff locations, time, and passenger count
-2. **Causal Inference:** Analyzing causal effects of peak hours and passenger count on fare amounts using advanced causal ML techniques
+## Key Findings
 
-## 🎯 Key Objectives
+- Distance is the strongest fare driver in both predictive and causal pipelines.
+- Peak-hour treatment has a consistent positive causal effect (about +$0.15 in current notebook outputs).
+- Passenger-count treatment pipeline is implemented and can be rerun to produce final numeric estimates from Part 6.
 
-**Part 1: Predictive Modeling**
-- Predict fare amounts for NYC Uber rides
-- Engineer features from geospatial and temporal data
-- Compare multiple regression algorithms
-- Evaluate model performance and feature importance
-
-**Part 2: Causal Analysis**
-- Estimate causal effect of peak hours on fares
-- Analyze impact of passenger count on pricing
-- Apply meta-learners (CausalML) and causal graphs (DoWhy)
-- Validate causal assumptions through refutation tests
-
-## 📁 Dataset
-
-**Source:** [NYC Taxi Fare Prediction (Kaggle)](https://www.kaggle.com/competitions/new-york-city-taxi-fare-prediction)
-
-**Size:** 200,000 rides
-
-**Features:**
-- Pickup/dropoff coordinates (latitude, longitude)
-- Pickup datetime
-- Passenger count
-- Fare amount (target variable)
-
-**Data Cleaning:**
-- Removed outliers (fares outside $0-$100 range)
-- Filtered invalid coordinates (outside NYC bounds)
-- Validated passenger counts (1-6 passengers)
-- Handled missing values
-
-## 🛠️ Tech Stack
-
-**Languages & Libraries:**
-- Python (Pandas, NumPy, scikit-learn)
-- Machine Learning: XGBoost, Random Forest, Linear Regression
-- Causal Inference: CausalML, DoWhy
-- Visualization: Matplotlib, Seaborn, SHAP
-
-**Techniques:**
-- Feature engineering (distance calculation, time features)
-- Regression modeling
-- Meta-learners (S-learner, T-learner)
-- Propensity score matching
-- SHAP values for interpretability
-
-## 📈 Key Results
+## Results Visuals
 
 ### Fare Prediction
-- Successfully predicted fares with strong performance metrics
-- Distance emerged as the strongest predictor
-- Time-based features captured surge pricing patterns
-- Model interpretability through feature importance analysis
+
+![Decision Tree Visualization](images/decision_tree_visualization.png)
+![Feature Importance Across Models](images/feature_importance_models.png)
+![Predictions vs Actual](images/predictions_vs_actual.png)
+![Residual Analysis](images/residual_analysis.png)
+![Test Set Evaluation](images/test_set_evaluation.png)
 
 ### Causal Inference
-- **Peak Hour Effect:** Quantified causal impact of riding during rush hours (7-9 AM, 5-7 PM)
-- **Passenger Count Effect:** Analyzed how group size affects fare amounts
-- Validated findings through multiple estimation methods and refutation tests
-- Identified confounders and controlled for selection bias
 
-## 📂 Repository Structure
+![Peak Hour Treatment Distribution](images/peak_hour_treatment_distribution.png)
+![Peak vs Off-Peak Fare Distribution](images/peak_vs_offpeak_fares.png)
+![CausalML Treatment Effect Distributions](images/causalml_effect_distributions.png)
+![Causal Feature Importance](images/causal_feature_importance.png)
 
-```
+## Data Requirements
+
+Source: [NYC Taxi Fare Prediction (Kaggle)](https://www.kaggle.com/competitions/new-york-city-taxi-fare-prediction)
+
+Expected files in the project root:
+- `uber.csv.zip` (or extracted `uber.csv`) for notebook 1
+- `uber_cleaned.csv` for notebook 2 (created in notebook 1 preprocessing)
+
+## Repository Structure
+
+```text
 uber-fare-analysis/
-├── 01_fare_prediction/
-│   └── uber_fare_prediction.ipynb
-├── 02_causal_inference/
-│   └── causal_inference_analysis.ipynb
-├── images/
-│   ├── banner.png
-│   ├── model_performance.png
-│   ├── feature_importance.png
-│   ├── causal_graph.png
-│   └── treatment_effects.png
-├── requirements.txt
-└── README.md
+|-- 01_fare_prediction/
+|   `-- uber_fare_prediction.ipynb
+|-- 02_causal_inference/
+|   `-- causal_inference_analysis.ipynb
+|-- VISUALIZATION_GUIDE.txt
+|-- requirements.txt
+|-- .gitignore
+|-- LICENSE
+`-- README.md
 ```
 
-## 🚀 How to Run
+## Setup + Run
 
-1. Clone the repository
+1. Clone:
 ```bash
 git clone https://github.com/MaralVahedi/uber-fare-analysis.git
 cd uber-fare-analysis
 ```
 
-2. Install dependencies
+2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-3. Download the dataset from [Kaggle](https://www.kaggle.com/competitions/new-york-city-taxi-fare-prediction) and place it in the project directory
+3. Add data files (`uber.csv.zip` / `uber.csv`, then `uber_cleaned.csv`).
 
-4. Run the notebooks in order:
-   - Start with `01_fare_prediction/uber_fare_prediction.ipynb`
-   - Then proceed to `02_causal_inference/causal_inference_analysis.ipynb`
+4. Run notebooks in order:
+- `01_fare_prediction/uber_fare_prediction.ipynb`
+- `02_causal_inference/causal_inference_analysis.ipynb`
 
-## 💡 Key Insights
+## Skills Demonstrated
 
-- **Distance is king:** Trip distance is the primary driver of fare amounts
-- **Peak hours matter:** Rush hour rides show measurably different pricing patterns
-- **Causal vs. correlation:** Demonstrated importance of causal analysis beyond predictive modeling
-- **Model interpretability:** SHAP values revealed how features contribute to predictions
+- structured exploratory data analysis
+- feature engineering (geospatial + temporal)
+- regression modeling and error analysis
+- causal effect estimation (CausalML, DoWhy)
+- robustness testing and interpretation
 
-## 🎓 Skills Demonstrated
+## Contact
 
-- End-to-end ML pipeline development
-- Feature engineering from geospatial and temporal data
-- Regression modeling and evaluation
-- Advanced causal inference techniques
-- Statistical validation and hypothesis testing
-- Data visualization and storytelling
-
-## 📧 Contact
-
-**Maral Vahedi**
+Maral Vahedi
 - LinkedIn: [linkedin.com/in/maralvahedi](https://linkedin.com/in/maralvahedi)
 - Email: maral.vahedi@mail.mcgill.ca

@@ -1,30 +1,29 @@
-
 VISUALIZATIONS TO EXPORT FROM NOTEBOOKS
-========================================
+=======================================
 
-From 01_fare_prediction/uber_fare_prediction.ipynb:
----------------------------------------------------
-1. all_features_histograms.png - Distribution of all features
+From 01_fare_prediction/uber_fare_prediction.ipynb
+--------------------------------------------------
+1. all_features_histograms.png - Distribution of raw and engineered features
 2. fare_distribution.png - Fare amount distribution
 3. correlation_heatmap.png - Feature correlation matrix
-4. model_performance.png - Model comparison (R², RMSE, MAE)
-5. feature_importance.png - Feature importance from best model
-6. predictions_vs_actual.png - Scatter plot of predictions vs actual
-7. residuals_plot.png - Residual analysis
+4. model_performance.png - Model comparison (R2, RMSE, MAE)
+5. feature_importance.png - Importance values from the best model
+6. predictions_vs_actual.png - Predicted vs observed fares
+7. residuals_plot.png - Residual diagnostics
 
-From 02_causal_inference/causal_inference_analysis.ipynb:
----------------------------------------------------------
-1. causal_graph.png - DoWhy causal graph visualization
-2. treatment_distribution.png - Distribution of treatment groups
-3. ate_comparison.png - Average Treatment Effect comparison
-4. shap_summary.png - SHAP values summary plot
-5. propensity_scores.png - Propensity score distribution
-6. refutation_tests.png - Refutation test results
+From 02_causal_inference/causal_inference_analysis.ipynb
+--------------------------------------------------------
+1. treatment_distribution.png - Treatment/control split
+2. ate_comparison.png - CausalML/DoWhy effect comparison
+3. feature_importance_causalml.png - T-learner feature importance
+4. shap_summary.png - SHAP summary for treatment heterogeneity
+5. refutation_tests.png - Refutation checks from DoWhy
+6. treatment_effects_comparison.png - Peak-hour vs passenger-count effects
 
-HOW TO EXPORT:
---------------
-Run each notebook and use plt.savefig() for each plot:
+HOW TO EXPORT
+-------------
+Run the notebooks and use:
 
-plt.savefig('../images/plot_name.png', dpi=300, bbox_inches='tight')
+plt.savefig("images/<plot_name>.png", dpi=300, bbox_inches="tight")
 
-Or use the save_fig() function if defined in the notebook.
+If you keep visuals in the repo, prefer an `images/` directory at project root.

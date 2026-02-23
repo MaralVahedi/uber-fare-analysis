@@ -17,4 +17,3 @@ shap>=0.42.0
 
 # Utilities
 jupyter>=1.0.0
-zipfile36>=0.1.3
