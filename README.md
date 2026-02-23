@@ -24,6 +24,19 @@ So I split the work into:
 | `01_fare_prediction/uber_fare_prediction.ipynb` | How well can fare be predicted? | EDA, feature engineering, regression models, tuning, residual diagnostics | Best predictive model + error profile |
 | `02_causal_inference/causal_inference_analysis.ipynb` | Which factors causally shift fares? | CausalML (S/T/X learners), DoWhy backdoor estimators, refutation checks | Causal effect estimates for two treatments |
 
+### Mini Architecture / Workflow
+
+```mermaid
+flowchart LR
+    A[Raw Data<br/>uber.csv.zip] --> B[Notebook 1<br/>Fare Prediction Pipeline]
+    B --> C[Cleaned Dataset<br/>uber_cleaned.csv]
+    C --> D[Notebook 2<br/>Causal Inference Pipeline]
+    B --> E[Predictive Metrics<br/>RMSE, MAE, R^2]
+    D --> F[Causal Effects<br/>Peak Hour, Passenger Count]
+    E --> G[Portfolio Insights]
+    F --> G
+```
+
 ---
 
 ## Act I: Predictive Modeling (Notebook 1)
@@ -84,6 +97,14 @@ After prediction, I move to causal questions using the cleaned dataset (`194,063
 - Both treatments have **positive** estimated causal effects.
 - **Peak hour** has a larger effect than passenger count.
 - **Distance** remains the dominant fare driver across both predictive and causal views.
+
+---
+
+## Business Impact (Short)
+
+- **Fare transparency for riders:** A model with MAE around `$2` gives practical fare expectations before booking.
+- **Pricing policy insight for operations:** Peak-hour effect (`~$0.15`) is stronger than passenger-count effect (`~$0.12`), suggesting time-based pricing signals are more influential than group size.
+- **Decision support for product teams:** Combining prediction + causality helps separate *what forecasts well* from *what actually drives change*, reducing policy decisions based on spurious correlations.
 
 ---
 
